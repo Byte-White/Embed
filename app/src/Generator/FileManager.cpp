@@ -30,12 +30,7 @@ std::vector<uint8_t> FileManager::LoadFileContent(std::string filepath)
 	std::streampos fileSize = file.tellg();
 	file.seekg(0, std::ios::beg);
 	std::vector<uint8_t> result(fileSize);
-
 	file.read(reinterpret_cast<char*>(result.data()), fileSize);
-	if (!file)
-	{
-		MAGMA_ERROR("Error reading file '{0}'", filepath);
-		return {};
-	}
+	
 	return result;
 }

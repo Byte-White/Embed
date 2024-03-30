@@ -8,9 +8,31 @@ void EmbedManager::Generate(std::filesystem::path folderpath)
 
 void EmbedManager::Export(std::filesystem::path outputpath)
 {
-	for (auto& file : m_codeGenerator.GetEmbededFiles())
+	std::filesystem::path embedspath = outputpath / "embeds";
+	if (!std::filesystem::exists(embedspath))
 	{
-		// todo: export
+		try
+		{
+			std::filesystem::create_directories(embedspath);
+		}
+		catch (const std::filesystem::filesystem_error& ex)
+		{
+			MAGMA_ERROR("Error creating embeds directory: {0}", ex.what());
+		}
+	}
+
+	for (auto& filepayload : m_codeGenerator.GetEmbededFiles())
+	{
+		std::filesystem::path filepath = embedspath / filepayload.variableName;
+		std::ofstream outfile(filepath.string() + ".h");
+		if (!outfile.good())
+		{
+			MAGMA_ERROR("Could not export file '{0}'", filepath);
+			continue;
+		}
+		// MAGMA_INFO("filepath: {0}", filepath);
+		outfile << filepayload.embedcontent;
+		outfile.close();
 	}
 }
 
