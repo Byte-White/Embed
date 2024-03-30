@@ -7,11 +7,15 @@
 #include <vector>
 
 #include "Magma/Core/Logging.h"
+#include "CodeGenerator.h"
 
 class FileManager
 {
 public:
-	void IterateFolder(std::filesystem::path path, void (*func)(std::string filename, std::vector<uint8_t> content));
+	void IterateFolder(std::filesystem::path path, CodeGenerator& codeGenerator,
+		void (*func)(std::filesystem::path filepath,
+			std::vector<uint8_t> content,
+			CodeGenerator& codeGenerator));
 
 	std::vector<uint8_t> LoadFileContent(std::string filepath);
 };

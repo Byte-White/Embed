@@ -1,19 +1,19 @@
 #include "FileManager.h"
 
-void FileManager::IterateFolder(std::filesystem::path path, 
-	void (*func)(std::string filename, std::vector<uint8_t> content)
+void FileManager::IterateFolder(std::filesystem::path path, CodeGenerator& codeGenerator,
+	void (*func)(std::filesystem::path filepath, std::vector<uint8_t> content, CodeGenerator& codeGenerator)
 )
 {
     for (const auto& entry : std::filesystem::directory_iterator(path))
     {
         if (std::filesystem::is_regular_file(entry))
         {
-			std::vector<uint8_t> content = LoadFileContent(entry.path());
-            func(entry.path().filename().string(), content);
+			std::vector<uint8_t> content = LoadFileContent(entry.path().string());
+            func(entry.path(), content, codeGenerator);
         }
         else if (std::filesystem::is_directory(entry))
         {
-            IterateFolder(entry.path(), func);
+            IterateFolder(entry.path(),codeGenerator ,func);
         }
     }
 }

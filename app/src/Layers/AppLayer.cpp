@@ -3,12 +3,12 @@
 
 void AppLayer::OnAttach()
 {
-
+    m_embedManager.Generate("D:/.dev/Arduino/MiLed_LIB"); // example folder
 }
 
 void AppLayer::OnDetach()
 {
-
+    
 }
 
 void AppLayer::OnUIRender()
