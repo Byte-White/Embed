@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.3)
-project(MagmaApp)
+project(Embed)
 
+set(CMAKE_CXX_STANDARD 17)
 
-set(MAGMA_VULKAN ON)
-set(MAGMA_OPENGL OFF)
+set(MAGMA_VULKAN OFF)
+set(MAGMA_OPENGL ON)
 set(MAGMA_EMSCRIPTEN OFF)
 
 
@@ -14,13 +15,21 @@ set(MAGMA_EMSCRIPTEN OFF)
 
 add_subdirectory(vendor/Magma)
 
-add_executable(MagmaApp 
-app/src/main.cpp
-app/src/examplelayer.cpp
+add_executable(Embed 
+"app/src/main.cpp"
+"app/src/Layers/AppLayer.cpp" 
+"app/src/Generator/EmbedManager.cpp" 
+"app/src/Generator/CodeGenerator.cpp" 
+"app/src/Generator/FileManager.cpp"
 )
 
+target_include_directories(
+    ${PROJECT_NAME}
+    PUBLIC 
+    ${PROJECT_SOURCE_DIR}/app/src
+)
 
-target_link_libraries(MagmaApp
+target_link_libraries(Embed
 PRIVATE
 magma
 )

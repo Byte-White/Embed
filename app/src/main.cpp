@@ -1,14 +1,14 @@
 #define MAGMA_ENTRYPOINT
 #include "Magma/Magma.h"
-#include "Layer.h"
-#include "examplelayer.h"
+#include "Layers/Layer.h"
+#include "Layers/AppLayer.h"
 
-class MyApplication:public mg::Application
+class EmbedApplication:public mg::Application
 {
 public:
-	MyApplication()
+	EmbedApplication()
 	{
-		m_Layers.emplace_back(new ExampleLayer());
+		m_Layers.emplace_back(new AppLayer());
 		// add your layers here
 	}
 
@@ -29,7 +29,7 @@ public:
 		m_Layers.clear();
 	}
 
-	~MyApplication()
+	~EmbedApplication()
 	{
 	}
 	void Render() override
@@ -44,8 +44,8 @@ private:
 
 mg::Application* CreateApplication(int argc, char** argv)
 {
-	MyApplication* app = new MyApplication(); 
+	EmbedApplication* app = new EmbedApplication(); 
 	app->SetSize(800,600);
-	app->SetTitle("Magma Layers Application");
+	app->SetTitle("Embed");
 	return app;
 }
