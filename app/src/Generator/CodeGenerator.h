@@ -10,8 +10,8 @@
 class CodeGenerator
 {
 public:
-	void GenerateEmbed(std::filesystem::path filepath, std::vector<uint8_t> content);
-	std::string GenerateServerClass();
+	void GenerateEmbed(std::filesystem::path filepath, std::vector<uint8_t> content, std::filesystem::path basepath);
+	ServerClassPayload GenerateServerClass();
 
 	inline std::vector<FilePayload>& GetEmbededFiles() { return m_embededFiles; }
 private:

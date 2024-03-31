@@ -1,8 +1,10 @@
 #include "EmbedManager.h"
 
+std::filesystem::path EmbedManager::s_basepath = "";
 
 void EmbedManager::Generate(std::filesystem::path folderpath)
 {
+	s_basepath = folderpath;
 	m_fileManager.IterateFolder(folderpath, m_codeGenerator, FileHandle);
 }
 
@@ -34,6 +36,29 @@ void EmbedManager::Export(std::filesystem::path outputpath)
 		outfile << filepayload.embedcontent;
 		outfile.close();
 	}
+
+
+	ServerClassPayload serverClassPayload = m_codeGenerator.GenerateServerClass();
+
+	{
+		std::ofstream headerfile(outputpath / "EmbedServer.h");
+		if (!headerfile.good())
+		{
+			MAGMA_ERROR("Error creating a header file!");
+		}
+		headerfile << serverClassPayload.headercontent;
+		headerfile.close();
+	}
+
+	{
+		std::ofstream cppfile(outputpath / "EmbedServer.cpp");
+		if (!cppfile.good())
+		{
+			MAGMA_ERROR("Error creating a cpp file!");
+		}
+		cppfile << serverClassPayload.cppcontent;
+		cppfile.close();
+	}
 }
 
 // static callback function used to iterate through each file
@@ -43,5 +68,5 @@ void EmbedManager::FileHandle(std::filesystem::path filepath, std::vector<uint8_
 
 	if (content.empty()) return;
 
-	codeGenerator.GenerateEmbed(filepath, content);
+	codeGenerator.GenerateEmbed(filepath, content,s_basepath);
 }

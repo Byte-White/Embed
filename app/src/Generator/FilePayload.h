@@ -8,7 +8,16 @@
 struct FilePayload
 {
 	std::filesystem::path filepath;
+	std::filesystem::path relativepath;
 	std::string variableName;
 	std::string embedcontent;
+	uint32_t filesize;
+};
+
+
+struct ServerClassPayload
+{
+	std::string headercontent;
+	std::string cppcontent;
 };
 #endif //EMBED_FILEPAYLOAD_H
