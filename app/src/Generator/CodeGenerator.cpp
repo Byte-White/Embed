@@ -69,7 +69,7 @@ ServerClassPayload CodeGenerator::GenerateServerClass()
         std::string relativePathString = file.relativepath.string();
         std::replace(relativePathString.begin(), relativePathString.end(), '\\', '/');
 
-        sourceStream << "\t\t" << (fileindex != 0 ? "else " : "") << "if(header.IndexOf(\"GET /" << relativePathString << " \") >= 0)\n"
+        sourceStream << "\t\t" << (fileindex != 0 ? "else " : "") << "if(m_header.indexOf(\"GET /" << relativePathString << " \") >= 0)\n"
             << "\t\t{\n"
             << "\t\t\thandle" << file.variableName << "(client);\n"
             << "\t\t}\n";
