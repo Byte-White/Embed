@@ -36,6 +36,7 @@ ServerClassPayload CodeGenerator::GenerateServerClass()
     headerStream << "#include <WiFi.h>\n\n"
         << "class EmbedServer\n{\npublic:\n"
         << "\tEmbedServer(int port) : m_server(port) {}\n"
+        << "\tvoid begin();\n"
         << "\tvoid handleClient();\n";
     for (auto& file : m_embededFiles)
     {
@@ -52,6 +53,10 @@ ServerClassPayload CodeGenerator::GenerateServerClass()
     {
         sourceStream << "#include \"embeds/" << file.variableName << ".h\"\n";
     }
+    sourceStream << "\n"
+        << "void EmbedServer::begin()\n{\n"
+        << "\tm_server.begin();\n}\n";
+    
     sourceStream << "\n"
         << "void EmbedServer::handleClient()\n"
         << "{\n"
@@ -76,8 +81,9 @@ ServerClassPayload CodeGenerator::GenerateServerClass()
         
         fileindex++;
     }
-
     sourceStream << "\t}\n"
+                << "\tm_header = \"\";\n"
+                << "\tclient.stop();\n"
                 << "}\n";
 
     for (auto& file : m_embededFiles)
