@@ -4,6 +4,7 @@ std::filesystem::path EmbedManager::s_basepath = "";
 
 void EmbedManager::Generate(std::filesystem::path folderpath)
 {
+	GetEmbededFiles().clear();
 	s_basepath = folderpath;
 	m_fileManager.IterateFolder(folderpath, m_codeGenerator, FileHandle);
 }
@@ -25,6 +26,8 @@ void EmbedManager::Export(std::filesystem::path outputpath)
 
 	for (auto& filepayload : m_codeGenerator.GetEmbededFiles())
 	{
+		if (!filepayload.include) continue;
+
 		std::filesystem::path filepath = embedspath / filepayload.variableName;
 		std::ofstream outfile(filepath.string() + ".h");
 		if (!outfile.good())

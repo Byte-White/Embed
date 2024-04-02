@@ -40,6 +40,7 @@ ServerClassPayload CodeGenerator::GenerateServerClass()
         << "\tvoid handleClient();\n";
     for (auto& file : m_embededFiles)
     {
+        if (!file.include) continue;
         headerStream << "\tvoid handle" << file.variableName << "(WiFiClient& client);\n";
     }
     headerStream << "private:\n\tWiFiServer m_server;\n\tString m_header;\n};";
@@ -51,6 +52,8 @@ ServerClassPayload CodeGenerator::GenerateServerClass()
 
     for (auto& file : m_embededFiles)
     {
+        if (!file.include) continue;
+
         sourceStream << "#include \"embeds/" << file.variableName << ".h\"\n";
     }
     sourceStream << "\n"
@@ -71,6 +74,8 @@ ServerClassPayload CodeGenerator::GenerateServerClass()
     int fileindex = 0;
     for (auto& file : m_embededFiles)
     {
+        if (!file.include) continue;
+
         std::string relativePathString = file.relativepath.string();
         std::replace(relativePathString.begin(), relativePathString.end(), '\\', '/');
 
@@ -88,6 +93,8 @@ ServerClassPayload CodeGenerator::GenerateServerClass()
 
     for (auto& file : m_embededFiles)
     {
+        if (!file.include) continue;
+
         sourceStream << "void EmbedServer::handle" << file.variableName << "(WiFiClient& client)\n{\n";
         sourceStream << "client.write(" << file.variableName 
                     << ",sizeof(" << file.variableName <<"));\n"; // no need to use file.filesize because sizeof can get it instead.

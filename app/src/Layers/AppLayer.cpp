@@ -105,7 +105,7 @@ void AppLayer::ExportConfigRender()
         s_shouldRegenerate = false;
     }
 
-    if (ImGui::ArrowButton("Back", ImGuiDir_Left)) s_path = "";
+    if (ImGui::ArrowButton("Back", ImGuiDir_Left)) SetPath("");
 
     if (ImGui::Button("Regenerate"))
     {
@@ -114,6 +114,8 @@ void AppLayer::ExportConfigRender()
 
     for (auto& file : m_embedManager.GetEmbededFiles())
     {
+        ImGui::Checkbox(("##" + file.variableName).c_str(), &file.include);
+        ImGui::SameLine();
         ImGui::Text("%s", file.filepath.string().c_str());
     }
 

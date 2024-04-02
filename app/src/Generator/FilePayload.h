@@ -12,6 +12,7 @@ struct FilePayload
 	std::string variableName;
 	std::string embedcontent;
 	uint32_t filesize;
+	bool include = true;
 };
 
 
