@@ -28,10 +28,20 @@ void CodeGenerator::GenerateEmbed(std::filesystem::path filepath, std::vector<ui
 	filepayload.embedcontent = ss.str();
 	m_embededFiles.emplace_back(filepayload);
 }
+
 ServerClassPayload CodeGenerator::GenerateServerClass()
 {
     ServerClassPayload payload;
 
+    payload.headercontent = GenerateHeaderFileContent();
+
+    payload.cppcontent = GenerateSourceFileContent();
+
+    return payload;
+}
+
+std::string CodeGenerator::GenerateHeaderFileContent()
+{
     std::stringstream headerStream;
     headerStream << "#include <WiFi.h>\n\n"
         << "class EmbedServer\n{\npublic:\n"
@@ -45,8 +55,11 @@ ServerClassPayload CodeGenerator::GenerateServerClass()
     }
     headerStream << "private:\n\tWiFiServer m_server;\n\tString m_header;\n};";
 
-    payload.headercontent = headerStream.str();
 
+    return headerStream.str();
+}
+std::string CodeGenerator::GenerateSourceFileContent()
+{
     std::stringstream sourceStream;
     sourceStream << "#include \"EmbedServer.h\"\n";
 
@@ -59,7 +72,7 @@ ServerClassPayload CodeGenerator::GenerateServerClass()
     sourceStream << "\n"
         << "void EmbedServer::begin()\n{\n"
         << "\tm_server.begin();\n}\n";
-    
+
     sourceStream << "\n"
         << "void EmbedServer::handleClient()\n"
         << "{\n"
@@ -83,25 +96,23 @@ ServerClassPayload CodeGenerator::GenerateServerClass()
             << "\t\t{\n"
             << "\t\t\thandle" << file.variableName << "(client);\n"
             << "\t\t}\n";
-        
+
         fileindex++;
     }
     sourceStream << "\t}\n"
-                << "\tm_header = \"\";\n"
-                << "\tclient.stop();\n"
-                << "}\n";
+        << "\tm_header = \"\";\n"
+        << "\tclient.stop();\n"
+        << "}\n";
 
     for (auto& file : m_embededFiles)
     {
         if (!file.include) continue;
 
         sourceStream << "void EmbedServer::handle" << file.variableName << "(WiFiClient& client)\n{\n";
-        sourceStream << "client.write(" << file.variableName 
-                    << ",sizeof(" << file.variableName <<"));\n"; // no need to use file.filesize because sizeof can get it instead.
+        sourceStream << "client.write(" << file.variableName
+            << ",sizeof(" << file.variableName << "));\n"; // no need to use file.filesize because sizeof can get it instead.
         sourceStream << "}\n\n";
     }
 
-    payload.cppcontent = sourceStream.str();
-
-    return payload;
+    return sourceStream.str();
 }

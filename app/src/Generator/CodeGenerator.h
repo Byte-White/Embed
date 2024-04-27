@@ -15,6 +15,9 @@ public:
 
 	inline std::vector<FilePayload>& GetEmbededFiles() { return m_embededFiles; }
 private:
+	std::string GenerateHeaderFileContent();
+	std::string GenerateSourceFileContent();
+private:
 	std::vector<FilePayload> m_embededFiles;
 };
 
