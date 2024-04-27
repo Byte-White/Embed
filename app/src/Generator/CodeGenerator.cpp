@@ -26,7 +26,7 @@ void CodeGenerator::GenerateEmbed(std::filesystem::path filepath, std::vector<ui
 	ss << "};";
     filepayload.filesize = content.size();
 	filepayload.embedcontent = ss.str();
-	m_embededFiles.emplace_back(filepayload);
+	m_embeddedFiles.emplace_back(filepayload);
 }
 
 ServerClassPayload CodeGenerator::GenerateServerClass()
@@ -43,36 +43,81 @@ ServerClassPayload CodeGenerator::GenerateServerClass()
 std::string CodeGenerator::GenerateHeaderFileContent()
 {
     std::stringstream headerStream;
-    headerStream << "#include <WiFi.h>\n\n"
+    HeaderGenerator::AddClassBeginning(headerStream, m_embeddedFiles);
+
+    HeaderGenerator::AddHandleFunctionsDeclarations(headerStream, m_embeddedFiles);
+
+    HeaderGenerator::AddClassEnding(headerStream, m_embeddedFiles);
+
+    return headerStream.str();
+}
+
+std::string CodeGenerator::GenerateSourceFileContent()
+{
+    std::stringstream sourceStream;
+    SourceGenerator::AddIncludes(sourceStream, m_embeddedFiles);
+
+    SourceGenerator::AddBeginServerFunction(sourceStream, m_embeddedFiles);
+
+    SourceGenerator::AddHandleClientFunction(sourceStream, m_embeddedFiles);
+
+    SourceGenerator::AddHandleFunctionsImplementations(sourceStream, m_embeddedFiles);
+
+    return sourceStream.str();
+}
+
+
+void HeaderGenerator::AddClassBeginning(std::stringstream& headerStream, const FilePayloadsVec& embeddedFiles)
+{
+    headerStream 
+        << "#include <WiFi.h>\n\n"
         << "class EmbedServer\n{\npublic:\n"
         << "\tEmbedServer(int port) : m_server(port) {}\n"
         << "\tvoid begin();\n"
         << "\tvoid handleClient();\n";
-    for (auto& file : m_embededFiles)
+}
+
+void HeaderGenerator::AddClassEnding(std::stringstream& headerStream, const FilePayloadsVec& embeddedFiles)
+{
+    headerStream << "private:\n\tWiFiServer m_server;\n\tString m_header;\n};";
+}
+
+
+void HeaderGenerator::AddHandleFunctionsDeclarations(std::stringstream& headerStream, const FilePayloadsVec& embeddedFiles)
+{
+    for (auto& file : embeddedFiles)
     {
         if (!file.include) continue;
         headerStream << "\tvoid handle" << file.variableName << "(WiFiClient& client);\n";
     }
-    headerStream << "private:\n\tWiFiServer m_server;\n\tString m_header;\n};";
-
-
-    return headerStream.str();
 }
-std::string CodeGenerator::GenerateSourceFileContent()
+
+
+void SourceGenerator::AddIncludes(std::stringstream& sourceStream, const FilePayloadsVec& embeddedFiles)
 {
-    std::stringstream sourceStream;
     sourceStream << "#include \"EmbedServer.h\"\n";
 
-    for (auto& file : m_embededFiles)
+    for (auto& file : embeddedFiles)
     {
         if (!file.include) continue;
 
         sourceStream << "#include \"embeds/" << file.variableName << ".h\"\n";
     }
-    sourceStream << "\n"
-        << "void EmbedServer::begin()\n{\n"
-        << "\tm_server.begin();\n}\n";
+}
 
+void SourceGenerator::AddBeginServerFunction(std::stringstream& sourceStream, const FilePayloadsVec& embeddedFiles)
+{
+    sourceStream 
+        << "\n"
+        << "void EmbedServer::begin()\n"
+        <<"{\n"
+        << "\tm_server.begin();\n"
+        <<"}\n";
+}
+
+
+void SourceGenerator::AddHandleClientFunction(std::stringstream& sourceStream, const FilePayloadsVec& embeddedFiles)
+{
     sourceStream << "\n"
         << "void EmbedServer::handleClient()\n"
         << "{\n"
@@ -85,7 +130,7 @@ std::string CodeGenerator::GenerateSourceFileContent()
         << "\t\t\tm_header += c;\n"
         << "\t\t}\n";
     int fileindex = 0;
-    for (auto& file : m_embededFiles)
+    for (auto& file : embeddedFiles)
     {
         if (!file.include) continue;
 
@@ -103,8 +148,11 @@ std::string CodeGenerator::GenerateSourceFileContent()
         << "\tm_header = \"\";\n"
         << "\tclient.stop();\n"
         << "}\n";
+}
 
-    for (auto& file : m_embededFiles)
+void SourceGenerator::AddHandleFunctionsImplementations(std::stringstream& sourceStream, const FilePayloadsVec& embeddedFiles)
+{
+    for (auto& file : embeddedFiles)
     {
         if (!file.include) continue;
 
@@ -113,6 +161,4 @@ std::string CodeGenerator::GenerateSourceFileContent()
             << ",sizeof(" << file.variableName << "));\n"; // no need to use file.filesize because sizeof can get it instead.
         sourceStream << "}\n\n";
     }
-
-    return sourceStream.str();
 }
