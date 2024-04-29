@@ -27,4 +27,43 @@ To get started with Embed:
 
 ![export](https://github.com/Byte-White/Embed/assets/51212450/99567722-64e1-4516-85b3-978746726085)
 
+Create your arduino project and use the generated server:
+
+```C++
+#include "EmbedServer.h"
+
+const char* ssid = "";
+const char* password = "";
+const int port = 80;
+
+EmbedServer server(port); 
+
+void setup() 
+{
+  Serial.begin(115200);
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  // Connect to Wi-Fi network with SSID and password
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) 
+  {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  server.begin();
+}
+
+void loop() 
+{
+  server.handleClient();
+}
+```
+
 *This application is powered by Magma.*
