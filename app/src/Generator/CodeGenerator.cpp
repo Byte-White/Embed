@@ -70,7 +70,8 @@ std::string CodeGenerator::GenerateSourceFileContent()
 void HeaderGenerator::AddClassBeginning(std::stringstream& headerStream, const FilePayloadsVec& embeddedFiles)
 {
     headerStream 
-        << "#include <WiFi.h>\n\n"
+        << "#include <WiFi.h>\n"
+        << "#include \"HttpRequest.h\"\n\n"
         << "class EmbedServer\n{\npublic:\n"
         << "\tEmbedServer(int port) : m_server(port) {}\n"
         << "\tvoid begin();\n"
@@ -79,7 +80,7 @@ void HeaderGenerator::AddClassBeginning(std::stringstream& headerStream, const F
 
 void HeaderGenerator::AddClassEnding(std::stringstream& headerStream, const FilePayloadsVec& embeddedFiles)
 {
-    headerStream << "private:\n\tWiFiServer m_server;\n\tString m_header;\n};";
+    headerStream << "private:\n\tWiFiServer m_server;\n\tHttpRequest m_request;\n};";
 }
 
 
@@ -124,11 +125,9 @@ void SourceGenerator::AddHandleClientFunction(std::stringstream& sourceStream, c
         << "\tWiFiClient client = m_server.available();\n"
         << "\tif (client)\n"
         << "\t{\n"
-        << "\t\twhile(client.available())\n"
-        << "\t\t{\n"
-        << "\t\t\tchar c = client.read();\n"
-        << "\t\t\tm_header += c;\n"
-        << "\t\t}\n";
+        << "\t\tm_request.reset();\n"
+        << "\t\tm_request.process();\n"
+        ;
     int fileindex = 0;
     for (auto& file : embeddedFiles)
     {
@@ -137,7 +136,7 @@ void SourceGenerator::AddHandleClientFunction(std::stringstream& sourceStream, c
         std::string relativePathString = file.relativepath.string();
         std::replace(relativePathString.begin(), relativePathString.end(), '\\', '/');
 
-        sourceStream << "\t\t" << (fileindex != 0 ? "else " : "") << "if(m_header.indexOf(\"GET /" << relativePathString << " \") >= 0)\n"
+        sourceStream << "\t\t" << (fileindex != 0 ? "else " : "") << "if(m_request.getMethod() == \"GET\" && m_request.getRequestedResource() == \"/" << relativePathString << "\")\n"
             << "\t\t{\n"
             << "\t\t\thandle" << file.variableName << "(client);\n"
             << "\t\t}\n";
@@ -145,7 +144,6 @@ void SourceGenerator::AddHandleClientFunction(std::stringstream& sourceStream, c
         fileindex++;
     }
     sourceStream << "\t}\n"
-        << "\tm_header = \"\";\n"
         << "\tclient.stop();\n"
         << "}\n";
 }

@@ -129,4 +129,5 @@ String HttpRequest::to_string()
     result += "\r\n";
 
     return result;
-})";
+}
+)";

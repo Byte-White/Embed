@@ -39,4 +39,4 @@ class HttpRequest
   std::map<String,String> m_Headers;
   String m_Body;
 };
-)"
+)";

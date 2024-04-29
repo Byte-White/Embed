@@ -1,4 +1,6 @@
 #include "EmbedManager.h"
+#include "HttpRequestHeaderEmbed.h"
+#include "HttpRequestSourceEmbed.h"
 
 std::filesystem::path EmbedManager::s_basepath = "";
 
@@ -61,6 +63,25 @@ void EmbedManager::Export(std::filesystem::path outputpath)
 		}
 		cppfile << serverClassPayload.cppcontent;
 		cppfile.close();
+	}
+
+	{
+		std::ofstream httprequestheaderfile(outputpath / "HttpRequest.h");
+		if (!httprequestheaderfile.good())
+		{
+			MAGMA_ERROR("Error creating a HttpRequest.h file!");
+		}
+		httprequestheaderfile << HttpRequestHeaderEmbed;
+		httprequestheaderfile.close();
+	}
+	{
+		std::ofstream httprequestcppfile(outputpath / "HttpRequest.cpp");
+		if (!httprequestcppfile.good())
+		{
+			MAGMA_ERROR("Error creating a HttpRequest.cpp file!");
+		}
+		httprequestcppfile << HttpRequestSourceEmbed;
+		httprequestcppfile.close();
 	}
 }
 
