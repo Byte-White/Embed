@@ -70,7 +70,6 @@ std::string CodeGenerator::GenerateSourceFileContent()
 void HeaderGenerator::AddClassBeginning(std::stringstream& headerStream, const FilePayloadsVec& embeddedFiles)
 {
     headerStream 
-        << "#include <WiFi.h>\n"
         << "#include \"HttpRequest.h\"\n\n"
         << "class EmbedServer\n{\npublic:\n"
         << "\tEmbedServer(int port) : m_server(port) {}\n"
@@ -126,7 +125,7 @@ void SourceGenerator::AddHandleClientFunction(std::stringstream& sourceStream, c
         << "\tif (client)\n"
         << "\t{\n"
         << "\t\tm_request.reset();\n"
-        << "\t\tm_request.process();\n"
+        << "\t\tm_request.process(client);\n"
         ;
     int fileindex = 0;
     for (auto& file : embeddedFiles)
